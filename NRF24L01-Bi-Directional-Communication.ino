@@ -270,6 +270,18 @@ void loop(void)
       displayPak.green = (float)green;
       displayPak.blue = (float)blue;
 
+      // Keep listening in case of transmitter is retransmitting the message
+      // The delay should be enough to cover all the possible retries
+      unsigned long wait_for_ready_start = millis();
+      while ((millis() - wait_for_ready_start) < 100)
+      {
+        if (radio.available())
+        {
+          controlDef dataDummy;
+          // Get (and discard) the answer data
+          radio.read(&dataDummy, sizeof(dataDummy));
+        }
+      }
 
       // Send the final one back. This way, we don't delay
       // the reply while we wait on serial i/o.
